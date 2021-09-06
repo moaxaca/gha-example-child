@@ -1,0 +1,39 @@
+name: "Child Pipeline Example"
+on: [push]
+jobs:
+  # Calling Parent Repositories Action
+  parent_action:
+    runs-on: ubuntu-latest
+    name: Parent Action Call
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      # checkout the private repo containing the action to run
+      - name: Checkout GitHub Action Repo
+        uses: actions/checkout@v2
+        with:
+          repository: moaxaca/gha-example-parent
+          ref: main
+          path: ./.github/actions/shared
+      - name: Hello world action step
+        uses: ./.github/actions/shared/actions/hello-world
+        id: hello
+        with:
+          who-to-greet: ${{ github.event.inputs.name }}
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
+  # Parent Workflow Dispatch
+  parent_workflow_dispatched:
+    runs-on: ubuntu-latest
+    name: Parent Workflow Dispatched
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Call parent pipeline
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Central Pipeline Example
+          repo: moaxaca/gha-example-parent
+          ref: main
+          token: ${{ secrets.CENTRAL_PIPELINE_PAT }}
