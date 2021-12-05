@@ -1,0 +1,10 @@
+name: "Child Call Parent Pipeline Example"
+on: [push]
+jobs:
+  # Constraint must a public repository
+  call-parent-workflow:
+    uses: moaxaca/gha-example-parent/.github/workflows/example-workflow.yaml@main
+    with:
+      username: mona
+    secrets:
+      envPAT: ${{ secrets.envPAT }}
